@@ -38,7 +38,7 @@ for col in cat_cols:
 
 
 #etape 20 le bouton predire 
-SEUIL_RISQUE = 0.55
+SEUIL_RISQUE = 0.50
 SEUIL_MODERE = 0.40
 if st.button('🔮 Prédire', type='primary', use_container_width=True):
     df_client = pd.DataFrame([client])[num_cols + cat_cols]
@@ -59,3 +59,12 @@ if st.button('🔮 Prédire', type='primary', use_container_width=True):
         st.dataframe(df_client.T.astype(str).rename(columns={0: 'Valeur'}),use_container_width=True)
 else:
     st.info('👈 Ajustez le profil dans la barre latérale, puis cliquez sur Prédire.')
+
+#Etape 21
+model = pipeline.named_steps['model']
+if hasattr(model, 'feature_importances_'):
+    noms = pipeline.named_steps['prep'].get_feature_names_out()
+    imp = (pd.Series(model.feature_importances_, index=noms).sort_values(ascending=False).head(8))
+    imp.index = [n.split('__', 1)[1] for n in imp.index]
+    st.subheader('📊 Les 8 variables les plus influentes du modèle')
+    st.bar_chart(imp)
